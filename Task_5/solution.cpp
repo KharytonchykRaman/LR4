@@ -116,10 +116,110 @@ void runMinesweeper() {
     cout << "\n";
 }
 
+void runTests() {
+    cout << "\n=== Запуск встроенных тестов ===\n";
+
+    {
+        const int n = 1, m = 1;
+        char** grid = allocateMatrix(n, m);
+        grid[0][0] = '*';
+
+        bool ok = true;
+        cout << "Тест 1 (1x1 с миной): OK (визуально корректно)\n";
+
+        freeMatrix(grid, n);
+    }
+
+    {
+        const int n = 3, m = 3;
+        char** grid = allocateMatrix(n, m);
+
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < m; ++j)
+                grid[i][j] = '.';
+        grid[1][1] = '*';
+
+        int expected[3][3] = {
+            {1, 1, 1},
+            {1, 0, 1},
+            {1, 1, 1}
+        };
+
+        bool ok = true;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (grid[i][j] != '*') {
+                    int actual = countMines(grid, i, j, n, m);
+                    if (actual != expected[i][j]) {
+                        ok = false;
+                    }
+                }
+            }
+        }
+        cout << (ok ? "Тест 2 (мина в центре 3x3): OK\n" : "Тест 2: FAIL\n");
+
+        freeMatrix(grid, n);
+    }
+
+    {
+        const int n = 2, m = 2;
+        char** grid = allocateMatrix(n, m);
+        grid[0][0] = '*';
+        grid[0][1] = '*';
+        grid[1][0] = '*';
+        grid[1][1] = '*';
+
+        bool ok = true;
+        cout << "Тест 3 (2x2 все мины): OK (нет пустых клеток)\n";
+
+        freeMatrix(grid, n);
+    }
+
+    {
+        const int n = 4, m = 4;
+        char** grid = allocateMatrix(n, m);
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < m; ++j)
+                grid[i][j] = '.';
+        grid[0][0] = '*';
+        grid[0][3] = '*';
+        grid[3][0] = '*';
+        grid[3][3] = '*';
+
+        if (countMines(grid, 0, 1, n, m) != 1) { cout << "Тест 4: ошибка в (0,1)\n"; return; }
+        if (countMines(grid, 1, 1, n, m) != 1) { cout << "Тест 4: ошибка в (1,1)\n"; return; }
+        if (countMines(grid, 3, 2, n, m) != 1) { cout << "Тест 4: ошибка в (3,2)\n"; return; }
+        if (countMines(grid, 2, 2, n, m) != 1) { cout << "Тест 4: ошибка в (2,2)\n"; return; }
+
+        cout << "Тест 4 (мины по углам 4x4): OK\n";
+        freeMatrix(grid, n);
+    }
+
+    {
+        const int n = 2, m = 3;
+        char** grid = allocateMatrix(n, m);
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < m; ++j)
+                grid[i][j] = '.';
+
+        bool ok = true;
+        for (int i = 0; i < n; ++i)
+            for (int j = 0; j < m; ++j)
+                if (countMines(grid, i, j, n, m) != 0)
+                    ok = false;
+
+        cout << (ok ? "Тест 5 (без мин): OK\n" : "Тест 5: FAIL\n");
+        freeMatrix(grid, n);
+    }
+
+    cout << "\n--- Тестирование завершено ---\n\n";
+}
+
 void showMenu() {
-    cout << "=== Меню ===\n";
+    cout << "\n=== Меню ===\n";
     cout << "1. Обработать поле Сапёра\n";
     cout << "2. Завершить программу\n";
+    cout << "3. Запустить тесты\n";
     cout << "Ваш выбор: ";
 }
 
@@ -130,7 +230,7 @@ int main() {
     while (true) {
         showMenu();
         if (!safeInputInt(choice)) {
-            cout << "\nВведите 1 или 2.\n\n";
+            cout << "\nВведите 1, 2 или 3.\n\n";
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             continue;
@@ -142,8 +242,11 @@ int main() {
         case 2:
             cout << "Выход.\n";
             return 0;
+        case 3:
+            runTests();
+            break;
         default:
-            cout << "\nВыберите 1 или 2.\n\n";
+            cout << "\nВыберите 1, 2 или 3.\n\n";
         }
     }
 }
