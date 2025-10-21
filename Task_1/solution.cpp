@@ -68,7 +68,7 @@ void runTests() {
 
     struct TestCase {
         const char* name;
-        int arr[10];     
+        int arr[10];
         int n;
         long long expected;
     };
